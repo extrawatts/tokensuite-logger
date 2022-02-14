@@ -5,7 +5,7 @@ import { LogContext, LogLevel } from './logger.types';
 // logMessages[name]
 
 @Injectable()
-export class LoggerService {
+export class LokiLoggerService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
   ) {}

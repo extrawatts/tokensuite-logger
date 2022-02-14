@@ -1,13 +1,13 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
-import { LoggerService } from './logger.service';
+import { LokiLoggerService } from './logger.service';
 import { LogContext, LogJobs } from './logger.types';
 
-describe('LoggerService', () => {
+describe('LokiLoggerService', () => {
   const imei = 'imei';
   const log = jest.fn();
-  let service: LoggerService;
+  let service: LokiLoggerService;
 
   beforeAll(() => {
     // Mock Logger
@@ -23,11 +23,11 @@ describe('LoggerService', () => {
             log,
           },
         },
-        LoggerService,
+        LokiLoggerService,
       ],
     }).compile();
 
-    service = module.get<LoggerService>(LoggerService);
+    service = module.get<LokiLoggerService>(LokiLoggerService);
 
     log.mockClear();
   });
