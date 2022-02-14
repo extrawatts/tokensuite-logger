@@ -1,4 +1,4 @@
-import { DynamicModule, Global, HttpModule, Module, Provider } from "@nestjs/common";
+import { DynamicModule, Global, Module, Provider } from "@nestjs/common";
 import {
   LOKI_LOGGER_MODULE_OPTIONS,
   LokiLoggerModuleAsyncOptions,
@@ -49,7 +49,6 @@ export class LokiLoggerModule {
               })
             ]
           }),
-          inject: [LOKI_LOGGER_MODULE_OPTIONS],
         }),
       ],
       providers: [...this.createAsyncProviders(options)]
