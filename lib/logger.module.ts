@@ -17,6 +17,7 @@ export class LokiLoggerModule {
     // This is easy:
     return {
       module: LokiLoggerModule,
+      global: true,
       imports: [
         WinstonModule.forRoot({
           transports: [
@@ -27,7 +28,9 @@ export class LokiLoggerModule {
             })
           ],
         }),
-      ]
+      ],
+      exports: [LokiLoggerService],
+      providers: [LokiLoggerService],
     };
   }
 
@@ -49,9 +52,11 @@ export class LokiLoggerModule {
               })
             ]
           }),
+          inject: [LOKI_LOGGER_MODULE_OPTIONS],
         }),
       ],
-      providers: [...this.createAsyncProviders(options)]
+      exports: [LokiLoggerService],
+      providers: [LokiLoggerService, ...this.createAsyncProviders(options)]
     };
   }
 

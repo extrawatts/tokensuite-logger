@@ -1,5 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { WINSTON_MODULE_PROVIDER } from 'nest-winston';
+import { LOKI_LOGGER_MODULE_OPTIONS } from './logger-options.interface';
+
 import { LogContext, LogLevel } from './logger.types';
 
 // logMessages[name]
@@ -8,6 +10,7 @@ import { LogContext, LogLevel } from './logger.types';
 export class LokiLoggerService {
   constructor(
     @Inject(WINSTON_MODULE_PROVIDER) private readonly logger: Logger,
+    @Inject(LOKI_LOGGER_MODULE_OPTIONS) options: Record<string, any>,
   ) {}
 
   /**
