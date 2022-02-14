@@ -47,8 +47,7 @@ export class LokiLoggerModule {
                 json: options.json
               })
             ]
-          }),
-          inject: [LOKI_LOGGER_MODULE_OPTIONS],
+          })
         }),
       ],
       providers: [...this.createAsyncProviders(options)]
