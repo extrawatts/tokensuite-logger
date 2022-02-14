@@ -1,13 +1,8 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { WinstonModule } from 'nest-winston';
 import { LoggerService } from './logger.service';
-import { v4 as uuid } from 'uuid';
 import { LoggerOptionsFactory, LokiLoggerAsyncOptions, LokiLoggerOptions } from './logger.module.interface';
 const LokiTransport = require('winston-loki');
-export const LOKI_MODULE_ID = 'LOKU_MODULE_ID';
-export const LOKI_MODULE_OPTIONS = 'MULTER_MODULE_OPTIONS';
-export const randomStringGenerator = () => uuid();
-
 @Module({})
 export class LokiLogger {
   static register(options: LokiLoggerOptions): DynamicModule {
@@ -31,36 +26,51 @@ export class LokiLogger {
       ],
     };
   }
+  public static registerAsync(
+    connectOptions: LokiLoggerAsyncOptions
+  ): DynamicModule {
+    return {
+      module: LokiLogger,
+      imports: connectOptions.imports || [],
+      providers: [
+        ...this.createConnectProviders(connectOptions)
+      ]
+    }
+  }
 
-  static async registerAsync(asyncOptions: LokiLoggerAsyncOptions): Promise<DynamicModule> {
-    const optionsProvider = {
-      provide: 'NotificationModuleOptions',
-      useFactory: asyncOptions.useFactory,
-      inject: asyncOptions.inject || [],
-    };
+  public static createConnectProviders(
+    options: LokiLoggerAsyncOptions
+  ): Provider[] {
+    if (options.useExisting || options.useFactory) {
+      return [this.createConnectOptionsProvider(options)]
+    }
+
+    return [
+      this.createConnectOptionsProvider(options),
+      {
+        provide: options.useClass,
+        useClass: options.useClass
+      }
+    ]
+  }
+
+  public static createConnectOptionsProvider(
+    options: LokiLoggerAsyncOptions
+  ): Provider {
+    if (options.useFactory) {
+      return {
+        provide: 'LOKI_LOGGER_OPTIONS',
+        useFactory: options.useFactory,
+        inject: options.inject || []
+      }
+    }
 
     return {
-      global: true,
-      module: LokiLogger,
-      providers: [LoggerService],
-      exports: [LoggerService],
-      imports: [
-        ...asyncOptions.imports || [],
-        WinstonModule.forRootAsync({
-          useFactory: (options: LokiLoggerOptions) => ({
-            transports: [
-              new LokiTransport({
-                options: {
-                  host: options.host,
-                  basicAuth: options.basicAuth,
-                  json: options.json,
-                },
-              }),
-            ]
-          }),
-          inject: [],
-        }),
-      ],
-    };
+      provide: 'LOKI_LOGGER_OPTIONS',
+      useFactory: async (optionsFactory: LoggerOptionsFactory) => {
+        await optionsFactory.createLoggerOptions()
+      },
+      inject: [options.useExisting || options.useClass]
+    }
   }
 }
