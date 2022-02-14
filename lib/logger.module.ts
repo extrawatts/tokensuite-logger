@@ -27,29 +27,13 @@ export class LokiLogger {
       ],
     };
   }
-  /*
+ 
   static registerAsync(options: LokiLoggerAsyncOptions): DynamicModule {
     return {
       module: LokiLogger,
-      global: true,
-      exports: [LoggerService],
-      providers: [LoggerService],
-      imports: [
-        WinstonModule.forRoot({
-          transports: [
-            new LokiTransport({
-              options
-            }),
-          ],
-        }),
-      ],
-    };
-  }
-  */
-  static registerAsync(options: LokiLoggerAsyncOptions): DynamicModule {
-    return {
-      module: LokiLogger,
-      imports: options.imports,
+      imports: new LokiTransport({
+        options
+      }),
       providers: [
         ...this.createAsyncProviders(options),
         {
