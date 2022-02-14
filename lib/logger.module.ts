@@ -1,4 +1,4 @@
-import { DynamicModule, HttpModule, Module, Provider } from "@nestjs/common";
+import { DynamicModule, Global, HttpModule, Module, Provider } from "@nestjs/common";
 import {
   LOKI_LOGGER_MODULE_OPTIONS,
   LokiLoggerModuleAsyncOptions,
@@ -8,6 +8,7 @@ import {
 import { LokiLoggerService } from "./logger.service";
 import { WinstonModule } from 'nest-winston';
 const LokiTransport = require('winston-loki');
+@Global()
 @Module({
   providers: [LokiLoggerService]
 })
@@ -47,7 +48,8 @@ export class LokiLoggerModule {
                 json: options.json
               })
             ]
-          })
+          }),
+          inject: [LOKI_LOGGER_MODULE_OPTIONS],
         }),
       ],
       providers: [...this.createAsyncProviders(options)]
