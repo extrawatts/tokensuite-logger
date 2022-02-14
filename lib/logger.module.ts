@@ -15,7 +15,7 @@ export class LokiLoggerModule {
   static register(options: LokiLoggerModuleOptions): DynamicModule {
     // This is easy:
     return {
-      module:  LokiLoggerModule,
+      module: LokiLoggerModule,
       imports: [
         WinstonModule.forRoot({
           transports: [
@@ -23,7 +23,7 @@ export class LokiLoggerModule {
               host: options.host,
               basicAuth: options.basicAuth,
               json: options.json
-            }),
+            })
           ],
         }),
       ]
@@ -33,17 +33,22 @@ export class LokiLoggerModule {
   static registerAsync(options: LokiLoggerModuleAsyncOptions): DynamicModule {
     // But how to import other modules here and pass in the options?
     return {
-      module:    LokiLoggerModule,
-      imports:   [
-        ...options.imports,
-        WinstonModule.forRoot({
-          transports: [
-            new LokiTransport({
-              host: options.host,
-              basicAuth: options.basicAuth,
-              json: options.json
-            }),
-          ],
+      module: LokiLoggerModule,
+      imports: [
+        WinstonModule.forRootAsync({
+          imports: options.imports || [],
+          // Factory is passed the injected CustomerInvoicesOptions as argument
+          // which is based on the result of the extra providers
+          useFactory: async (options: LokiLoggerModuleOptions) => ({
+            transports: [
+              new LokiTransport({
+                host: options.host,
+                basicAuth: options.basicAuth,
+                json: options.json
+              })
+            ]
+          }),
+          inject: [LOKI_LOGGER_MODULE_OPTIONS],
         }),
       ],
       providers: [...this.createAsyncProviders(options)]
@@ -57,7 +62,7 @@ export class LokiLoggerModule {
     return [
       this.createAsyncOptionsProvider(options),
       {
-        provide:  options.useClass,
+        provide: options.useClass,
         useClass: options.useClass
       }
     ];
@@ -66,15 +71,15 @@ export class LokiLoggerModule {
   private static createAsyncOptionsProvider(options: LokiLoggerModuleAsyncOptions): Provider {
     if (options.useFactory) {
       return {
-        provide:    LOKI_LOGGER_MODULE_OPTIONS,
+        provide: LOKI_LOGGER_MODULE_OPTIONS,
         useFactory: options.useFactory,
-        inject:     options.inject || []
+        inject: options.inject || []
       };
     }
     return {
-      provide:    LOKI_LOGGER_MODULE_OPTIONS,
+      provide: LOKI_LOGGER_MODULE_OPTIONS,
       useFactory: async (optionsFactory: LokiLoggerModuleOptionsFactory) => await optionsFactory.createOptions(),
-      inject:     [options.useExisting || options.useClass]
+      inject: [options.useExisting || options.useClass]
     };
   }
 }
