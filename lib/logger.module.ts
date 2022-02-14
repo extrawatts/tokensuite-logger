@@ -20,60 +20,47 @@ export class LokiLogger {
         WinstonModule.forRoot({
           transports: [
             new LokiTransport({
-              options
+              options: {
+                host: options.host,
+                basicAuth: options.basicAuth,
+                json: options.json
+              }
             }),
           ],
         }),
       ],
     };
   }
- 
-  static registerAsync(options: LokiLoggerAsyncOptions): DynamicModule {
-    return {
-      module: LokiLogger,
-      imports: new LokiTransport({
-        options
-      }),
-      providers: [
-        ...this.createAsyncProviders(options),
-        {
-          provide: LOKI_MODULE_ID,
-          useValue: randomStringGenerator(),
-        },
-      ],
-      exports: [LOKI_MODULE_OPTIONS],
-    };
-  }
-  private static createAsyncProviders(
-    options: LokiLoggerAsyncOptions,
-  ): Provider[] {
-    if (options.useExisting || options.useFactory) {
-      return [this.createAsyncOptionsProvider(options)];
-    }
-    return [
-      this.createAsyncOptionsProvider(options),
-      {
-        provide: options.useClass,
-        useClass: options.useClass,
-      },
-    ];
-  }
 
-  private static createAsyncOptionsProvider(
-    options: LokiLoggerAsyncOptions,
-  ): Provider {
-    if (options.useFactory) {
-      return {
-        provide: LOKI_MODULE_OPTIONS,
-        useFactory: options.useFactory,
-        inject: options.inject || [],
-      };
-    }
+  static async registerAsync(asyncOptions: LokiLoggerAsyncOptions): Promise<DynamicModule> {
+    const optionsProvider = {
+      provide: 'NotificationModuleOptions',
+      useFactory: asyncOptions.useFactory,
+      inject: asyncOptions.inject || [],
+    };
+
     return {
-      provide: LOKI_MODULE_OPTIONS,
-      useFactory: async (optionsFactory: LoggerOptionsFactory) =>
-        optionsFactory.createLoggerOptions(),
-      inject: [options.useExisting || options.useClass],
+      global: true,
+      module: LokiLogger,
+      providers: [LoggerService],
+      exports: [LoggerService],
+      imports: [
+        ...asyncOptions.imports || [],
+        WinstonModule.forRootAsync({
+          useFactory: (options: LokiLoggerOptions) => ({
+            transports: [
+              new LokiTransport({
+                options: {
+                  host: options.host,
+                  basicAuth: options.basicAuth,
+                  json: options.json,
+                },
+              }),
+            ]
+          }),
+          inject: [],
+        }),
+      ],
     };
   }
 }
