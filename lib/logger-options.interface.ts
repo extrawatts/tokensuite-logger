@@ -1,6 +1,6 @@
-import { ModuleMetadata, Type } from "@nestjs/common";
+import { ModuleMetadata, Type } from '@nestjs/common';
 
-export const LOKI_LOGGER_MODULE_OPTIONS = "LOKI_LOGGER_MODULE_OPTIONS";
+export const LOKI_LOGGER_MODULE_OPTIONS = 'LOKI_LOGGER_MODULE_OPTIONS';
 
 export interface LokiLoggerModuleOptions {
   host: string;
@@ -8,10 +8,13 @@ export interface LokiLoggerModuleOptions {
   json?: boolean;
 }
 
-export interface LokiLoggerModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+export interface LokiLoggerModuleAsyncOptions
+  extends Pick<ModuleMetadata, 'imports'> {
   useExisting?: Type<LokiLoggerModuleOptionsFactory>;
   useClass?: Type<LokiLoggerModuleOptionsFactory>;
-  useFactory?: (...args: any[]) => Promise<LokiLoggerModuleOptions> | LokiLoggerModuleOptions;
+  useFactory?: (
+    ...args: any[]
+  ) => Promise<LokiLoggerModuleOptions> | LokiLoggerModuleOptions;
   inject?: any[];
 }
 

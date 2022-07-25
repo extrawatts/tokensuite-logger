@@ -1,16 +1,16 @@
-import { DynamicModule, Global, Module, Provider } from "@nestjs/common";
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
 import {
   LOKI_LOGGER_MODULE_OPTIONS,
   LokiLoggerModuleAsyncOptions,
   LokiLoggerModuleOptions,
-  LokiLoggerModuleOptionsFactory
-} from "./logger-options.interface";
-import { LokiLoggerService } from "./logger.service";
+  LokiLoggerModuleOptionsFactory,
+} from './logger-options.interface';
+import { LokiLoggerService } from './logger.service';
 import { WinstonModule } from 'nest-winston';
 const LokiTransport = require('winston-loki');
 @Global()
 @Module({
-  providers: [LokiLoggerService]
+  providers: [LokiLoggerService],
 })
 export class LokiLoggerModule {
   static register(options: LokiLoggerModuleOptions): DynamicModule {
@@ -24,8 +24,8 @@ export class LokiLoggerModule {
             new LokiTransport({
               host: options.host,
               basicAuth: options.basicAuth,
-              json: options.json
-            })
+              json: options.json,
+            }),
           ],
         }),
       ],
@@ -48,19 +48,21 @@ export class LokiLoggerModule {
               new LokiTransport({
                 host: options.host,
                 basicAuth: options.basicAuth,
-                json: options.json
-              })
-            ]
+                json: options.json,
+              }),
+            ],
           }),
           inject: [LOKI_LOGGER_MODULE_OPTIONS],
         }),
       ],
       exports: [LokiLoggerService],
-      providers: [LokiLoggerService, ...this.createAsyncProviders(options)]
+      providers: [LokiLoggerService, ...this.createAsyncProviders(options)],
     };
   }
 
-  private static createAsyncProviders(options: LokiLoggerModuleAsyncOptions): Provider[] {
+  private static createAsyncProviders(
+    options: LokiLoggerModuleAsyncOptions,
+  ): Provider[] {
     if (options.useExisting || options.useFactory) {
       return [this.createAsyncOptionsProvider(options)];
     }
@@ -68,23 +70,26 @@ export class LokiLoggerModule {
       this.createAsyncOptionsProvider(options),
       {
         provide: options.useClass,
-        useClass: options.useClass
-      }
+        useClass: options.useClass,
+      },
     ];
   }
 
-  private static createAsyncOptionsProvider(options: LokiLoggerModuleAsyncOptions): Provider {
+  private static createAsyncOptionsProvider(
+    options: LokiLoggerModuleAsyncOptions,
+  ): Provider {
     if (options.useFactory) {
       return {
         provide: LOKI_LOGGER_MODULE_OPTIONS,
         useFactory: options.useFactory,
-        inject: options.inject || []
+        inject: options.inject || [],
       };
     }
     return {
       provide: LOKI_LOGGER_MODULE_OPTIONS,
-      useFactory: async (optionsFactory: LokiLoggerModuleOptionsFactory) => await optionsFactory.createOptions(),
-      inject: [options.useExisting || options.useClass]
+      useFactory: async (optionsFactory: LokiLoggerModuleOptionsFactory) =>
+        await optionsFactory.createOptions(),
+      inject: [options.useExisting || options.useClass],
     };
   }
 }

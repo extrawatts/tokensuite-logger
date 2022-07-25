@@ -12,11 +12,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LoggerService = void 0;
+exports.LokiLoggerService = void 0;
 const common_1 = require("@nestjs/common");
 const nest_winston_1 = require("nest-winston");
 const logger_types_1 = require("./logger.types");
-let LoggerService = class LoggerService {
+let LokiLoggerService = class LokiLoggerService {
     constructor(logger) {
         this.logger = logger;
     }
@@ -34,10 +34,10 @@ let LoggerService = class LoggerService {
         });
     }
 };
-LoggerService = __decorate([
+LokiLoggerService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, common_1.Inject)(nest_winston_1.WINSTON_MODULE_PROVIDER)),
     __metadata("design:paramtypes", [common_1.Logger])
-], LoggerService);
-exports.LoggerService = LoggerService;
+], LokiLoggerService);
+exports.LokiLoggerService = LokiLoggerService;
 //# sourceMappingURL=logger.service.js.map
